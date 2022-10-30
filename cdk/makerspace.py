@@ -15,20 +15,22 @@ from aws_cdk import (
 from aws_cdk import App, Stack, Stage, Environment
 from constructs import Construct
 from hitcounter import HitCounter
-
+from cdk_workshop_stack import CdkWorkshopStack
 class MakerspaceStage(Stage):
     @property
     def hc_endpoint(self):
-        return self.service.get_endpoint()
-
-    # @property
-    # def hc_viewer_url(self):
-    #     return self._hc_viewer_url
+        return self._hc_endpoint
+    @property
+    def hc_viewer_url(self):
+        return self._hc_viewer_url
     def __init__(self, scope: Construct, stage: str, *,
                  env: Environment) -> None:
         super().__init__(scope, stage, env=env)
         
-        self.service = MakerspaceStack(self, stage, env=env)
+        # self.service = MakerspaceStack(self, stage, env=env)
+        self.service = CdkWorkshopStack(self, "WorkshopStackTest")
+        self._hc_endpoint = self.service._hc_endpoint
+        self._hc_viewer_url = self.service._hc_viewer_url
 
 class MakerspaceStack(Stack):
     def __init__(self, app: Construct, stage: str, *,

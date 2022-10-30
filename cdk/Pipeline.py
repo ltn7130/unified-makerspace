@@ -77,39 +77,17 @@ class Pipeline(Stack):
 
         deploy = MakerspaceStage(self, 'Dev', env=accounts['Dev-ltn'])
         deploy_stage = pipeline.add_stage(deploy)
-        service = deploy.service
+        # service = deploy.service
         # my_lambda = service.my_lambda
-        my_lambda = aws_lambda.Function(
-            self, 'HelloHandler',
-            runtime=aws_lambda.Runtime.PYTHON_3_7,
-            code=aws_lambda.Code.from_asset('lambda'),
-            handler='hello.handler',
+        deploy_stage.add_post(
+            pipelines.ShellStep(
+                "TestViewerEndpoint",
+                env_from_cfn_outputs={
+                    "ENDPOINT_URL": deploy.hc_viewer_url
+                },
+                commands=["curl -Ssf $ENDPOINT_URL"],
+            )
         )
-        hello_with_counter = HitCounter(
-            self, 'HelloHitCounter',
-            downstream=my_lambda
-        )
-        gateway = apigw.LambdaRestApi(
-            self, 'Endpoint',
-            handler=hello_with_counter._handler
-        )
-
-        tv = TableViewer(
-            self, 'ViewHitCounter',
-            title='Hello Hits',
-            table=hello_with_counter.table
-        )
-
-        self._hc_endpoint = CfnOutput(
-            self, 'GatewayUrl',
-            value=gateway.url
-        )
-
-        self._hc_viewer_url = CfnOutput(
-            self, 'TableViewerUrl',
-            value=tv.endpoint
-        )
-
 
         deploy_stage.add_post(
             pipelines.ShellStep(

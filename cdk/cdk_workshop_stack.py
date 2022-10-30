@@ -6,7 +6,7 @@ from aws_cdk import (
     aws_apigateway as apigw,
     App, Stack, Stage, Environment, PhysicalName
 )
-from makerspace import  MakerspaceStage
+# from makerspace import  MakerspaceStage
 from hitcounter import HitCounter
 from accounts_config import accounts
 from visit import Visit
@@ -15,9 +15,9 @@ class CdkWorkshopStack(Stack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        test_stage = MakerspaceStage(self, 'Dev', env=accounts['Dev-ltn'])
-        service = test_stage.service
-        my_lambda = service.my_lambda
+        # test_stage = MakerspaceStage(self, 'Dev', env=accounts['Dev-ltn'])
+        # service = test_stage.service
+        # my_lambda = service.my_lambda
         # self.lambda_visit = aws_lambda.Function(
         #
         #
