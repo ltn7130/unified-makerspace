@@ -7,6 +7,7 @@ from aws_cdk import (
     pipelines as pipelines,
     CfnOutput,
     aws_apigateway as apigw,
+aws_lambda,
 )
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep, ManualApprovalStep
 from dns import Domains
