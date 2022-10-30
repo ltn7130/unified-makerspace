@@ -4,7 +4,9 @@ from constructs import Construct
 from aws_cdk import (
     Stack,
     aws_codecommit as codecommit,
-    pipelines as pipelines
+    pipelines as pipelines,
+    CfnOutput,
+    aws_apigateway as apigw,
 )
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep, ManualApprovalStep
 from dns import Domains
@@ -12,6 +14,11 @@ from accounts_config import accounts
 from makerspace import MakerspaceStage
 from aws_cdk import App, Stack, Stage, Environment, RemovalPolicy
 from constructs import Construct
+from makerspace import  MakerspaceStage
+from hitcounter import HitCounter
+from accounts_config import accounts
+from visit import Visit
+from cdk_dynamo_table_view import TableViewer
 class Pipeline(Stack):
     @property
     def hc_endpoint(self):
@@ -58,27 +65,50 @@ class Pipeline(Stack):
             ],
             primary_output_directory="cdk/cdk.out",
         )
-        #test pipeline
+
         pipeline = CodePipeline(self, "Pipeline",
             synth=deploy_cdk_shell_step,
             cross_account_keys=True  # necessary to allow the prod account to access our artifact bucket
         )
 
-        # create the stack for beta
+
+
+
         deploy = MakerspaceStage(self, 'Dev', env=accounts['Dev-ltn'])
         deploy_stage = pipeline.add_stage(deploy)
         service = deploy.service
-        # deploy_stage.add_post(
-        #     pipelines.ShellStep(
-        #         "TestViewerEndpoint",
-        #         env_from_cfn_outputs={
-        #             "ENDPOINT_URL": self.deploy.hc_viewer_url
-        #         },
-        #         commands=["curl -Ssf $ENDPOINT_URL"],
-        #     )
-        # )
-        print("testttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt")
-        print(deploy.hc_endpoint)
+        # my_lambda = service.my_lambda
+        my_lambda = aws_lambda.Function(
+            self, 'HelloHandler',
+            runtime=aws_lambda.Runtime.PYTHON_3_7,
+            code=aws_lambda.Code.from_asset('lambda'),
+            handler='hello.handler',
+        )
+        hello_with_counter = HitCounter(
+            self, 'HelloHitCounter',
+            downstream=my_lambda
+        )
+        gateway = apigw.LambdaRestApi(
+            self, 'Endpoint',
+            handler=hello_with_counter._handler
+        )
+
+        tv = TableViewer(
+            self, 'ViewHitCounter',
+            title='Hello Hits',
+            table=hello_with_counter.table
+        )
+
+        self._hc_endpoint = CfnOutput(
+            self, 'GatewayUrl',
+            value=gateway.url
+        )
+
+        self._hc_viewer_url = CfnOutput(
+            self, 'TableViewerUrl',
+            value=tv.endpoint
+        )
+
 
         deploy_stage.add_post(
             pipelines.ShellStep(

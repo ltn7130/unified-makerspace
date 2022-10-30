@@ -14,7 +14,7 @@ from aws_cdk import (
 )
 from aws_cdk import App, Stack, Stage, Environment
 from constructs import Construct
-
+from hitcounter import HitCounter
 
 class MakerspaceStage(Stage):
     @property
@@ -38,7 +38,6 @@ class MakerspaceStack(Stack):
             f'MakerspaceStack-{stage}',
             env=env,
             termination_protection=True)
-
         self.my_lambda =None
         self.hello_with_counter =None
         self.gateway = None
@@ -76,7 +75,6 @@ class MakerspaceStack(Stack):
 
         if self.create_dns:
             self.dns_records_stack()
-        print(f'my lkambda is {self.my_lambda is None}')
 
     def database_stack(self):
 
@@ -106,7 +104,8 @@ class MakerspaceStack(Stack):
         self.add_dependency(self.api_gateway)
 
         # my_lambda
-        self.my_lambda = self.visit.lambda_visit
+        self.my_lambda = self.visit.lambda_register
+
         #gateway
         self.gateway = self.api_gateway.api
         self._hc_endpoint = CfnOutput(

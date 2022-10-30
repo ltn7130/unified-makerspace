@@ -3,8 +3,8 @@
 import aws_cdk as cdk
 from accounts_config import accounts
 from Pipeline import Pipeline
-# test sdasd   dasda sd  asdsd
+from cdk_workshop_stack import CdkWorkshopStack
 app = cdk.App()
-pipeline = Pipeline(app, 'Pipeline', env=accounts['Dev-ltn'])
-
+CdkWorkshopStack(app, "WorkshopStackTest")
+# pipeline = Pipeline(app, 'Pipeline', env=accounts['Dev-ltn'])
 app.synth()

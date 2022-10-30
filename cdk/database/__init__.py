@@ -1,7 +1,5 @@
-from aws_cdk import (
-    aws_dynamodb
-)
-from aws_cdk import App, Stack, Stage, Environment, RemovalPolicy
+
+from aws_cdk import Stack, Environment, RemovalPolicy, aws_dynamodb
 from constructs import Construct
 
 class Database(Stack):
