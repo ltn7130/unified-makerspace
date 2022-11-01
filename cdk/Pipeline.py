@@ -96,9 +96,7 @@ class Pipeline(Stack):
                     "ENDPOINT_URL": deploy.hc_endpoint
                 },
                 commands=[
-                    "curl -Ssf $ENDPOINT_URL",
-                    "curl -Ssf $ENDPOINT_URL/hello",
-                    "curl -Ssf $ENDPOINT_URL/test",
+                    "curl --location -X POST $ENDPOINT_URL/visit",
                 ],
             )
         )
