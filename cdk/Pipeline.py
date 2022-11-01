@@ -87,7 +87,7 @@ class Pipeline(Stack):
                 },
                 commands=["curl -Ssf $ENDPOINT_URL"],
             )
-        )
+        )  
         #
         # deploy_stage.add_post(
         #     pipelines.ShellStep(
