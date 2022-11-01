@@ -88,17 +88,17 @@ class Pipeline(Stack):
                 commands=["curl -Ssf $ENDPOINT_URL"],
             )
         )
-
-        deploy_stage.add_post(
-            pipelines.ShellStep(
-                "TestAPIGatewayEndpoint",
-                env_from_cfn_outputs={
-                    "ENDPOINT_URL": deploy.hc_endpoint
-                },
-                commands=[
-                    "curl -Ssf $ENDPOINT_URL",
-                    "curl -Ssf $ENDPOINT_URL/hello",
-                    "curl -Ssf $ENDPOINT_URL/test",
-                ],
-            )
-        )
+        #
+        # deploy_stage.add_post(
+        #     pipelines.ShellStep(
+        #         "TestAPIGatewayEndpoint",
+        #         env_from_cfn_outputs={
+        #             "ENDPOINT_URL": deploy.hc_endpoint
+        #         },
+        #         commands=[
+        #             "curl -Ssf $ENDPOINT_URL",
+        #             "curl -Ssf $ENDPOINT_URL/hello",
+        #             "curl -Ssf $ENDPOINT_URL/test",
+        #         ],
+        #     )
+        # )

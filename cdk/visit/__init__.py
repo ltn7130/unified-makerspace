@@ -119,7 +119,7 @@ class Visit(Stack):
 
         self.lambda_visit = aws_lambda.Function(
             self,
-            'RegisterVisitLambda',
+            'HelloHandler',
             function_name=PhysicalName.GENERATE_IF_NEEDED,
             code=aws_lambda.Code.from_asset('visit/lambda_code/log_visit'),
             environment={
@@ -128,10 +128,12 @@ class Visit(Stack):
                 'VISITS_TABLE_NAME': visits_table_name,
                 'USERS_TABLE_NAME': users_table_name,
             },
-            handler='log_visit.handler',
-            runtime=aws_lambda.Runtime.PYTHON_3_9)
-
-        self.lambda_visit.role.add_to_policy(sending_authorization_policy)
+            handler = 'hello.handler',
+            runtime=aws_lambda.Runtime.PYTHON_3_7)
+        # self, 'HelloHandler',
+        # code = aws_lambda.Code.from_asset('lambda'),
+        # handler = 'hello.handler',
+        # self.lambda_visit.role.add_to_policy(sending_authorization_policy)
 
     def get_lambda(self):
         return self.lambda_visit

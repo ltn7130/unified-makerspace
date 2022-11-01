@@ -76,3 +76,6 @@ class SharedApiGateway(Stack):
         self.register = self.api.root.add_resource('register')
 
         self.register.add_method('POST', register_user)
+
+    def get_api(self):
+        return self.api
