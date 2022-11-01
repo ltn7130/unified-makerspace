@@ -4,7 +4,6 @@ import aws_cdk as cdk
 from accounts_config import accounts
 from makerspace import MakerspaceStack
 from Pipeline import Pipeline
-from cdk_workshop_stack import CdkWorkshopStack
 app = cdk.App()
 # CdkWorkshopStack(app, "MakerSpaceTest",env=accounts['Dev-ltn'])
 MakerspaceStack(app, 'Dev', env=accounts['Dev-ltn'])
