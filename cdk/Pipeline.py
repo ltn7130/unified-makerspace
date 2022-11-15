@@ -2,7 +2,6 @@
 # https://aws.amazon.com/blogs/developer/cdk-pipelines-continuous-delivery-for-aws-cdk-applications/
 from aws_cdk import (
     Stack,
-    aws_codecommit as codecommit,
     pipelines as pipelines,
     Environment,
 )
@@ -12,19 +11,16 @@ from constructs import Construct
 from makerspace import MakerspaceStage
 from accounts_config import accounts
 
-
 class Pipeline(Stack):
     def __init__(self, app: Construct, id: str, *, env: Environment) -> None:
         super().__init__(app, id, env=env)
 
-        repo = codecommit.Repository(self, "makerspace", repository_name="makerspace")
-
         deploy_cdk_shell_step = ShellStep(
             "Synth",
             # use a connection created using the AWS console to authenticate to GitHub.
-            input=CodePipelineSource.connection("ltn7130/unified-makerspace", "mainline",
-                                                connection_arn="arn:aws:codestar-connections:us-east-1:446249877359:connection/c5a35733-c701-439d-955e-e1140838d0b7"
-                                                ),
+            input=CodePipelineSource.connection("clemsonMakerspace/unified-makerspace", "mainline",
+                connection_arn="arn:aws:codestar-connections:us-east-1:944207523762:connection/0d26aa24-5271-44cc-b436-3ddd4e2c9842"
+            ),
             commands=[
                 # install dependancies for frontend
                 "cd site/visitor-console",
@@ -55,12 +51,13 @@ class Pipeline(Stack):
             cross_account_keys=True,  # necessary to allow the prod account to access our artifact bucket
         )
 
-        deploy = MakerspaceStage(self, "Dev", env=accounts["Dev-ltn"])
-        deploy_stage = pipeline.add_stage(deploy)
+        # Test beta
+        self.beta = MakerspaceStage(self, 'Beta', env=accounts['Beta'])
+        deploy_stage = pipeline.add_stage(self.beta)
         deploy_stage.add_post(
             pipelines.ShellStep(
                 "TestViewerEndpoint",
-                env_from_cfn_outputs={"ENDPOINT_URL": deploy.hc_viewer_url},
+                env_from_cfn_outputs={"ENDPOINT_URL": self.beta.hc_viewer_url},
                 commands=["curl -Ssf $ENDPOINT_URL"],
             )
         )
@@ -68,7 +65,7 @@ class Pipeline(Stack):
         deploy_stage.add_post(
             pipelines.ShellStep(
                 "TestAPIGatewayEndpoint",
-                env_from_cfn_outputs={"ENDPOINT_URL": deploy.hc_endpoint},
+                env_from_cfn_outputs={"ENDPOINT_URL": self.beta.hc_endpoint},
                 commands=[
                     "curl --location -X POST $ENDPOINT_URL/visit",
                 ],
@@ -78,9 +75,30 @@ class Pipeline(Stack):
         deploy_stage.add_post(
             pipelines.ShellStep(
                 "TestBetaFrontend",
-                env_from_cfn_outputs={"ENDPOINT_URL": deploy.hc_endpoint},
+                env_from_cfn_outputs={"ENDPOINT_URL": self.beta.hc_endpoint},
                 commands=[
                     "curl https://beta-visit.cumaker.space/",
+                ],
+            )
+        )
+
+        # test prod
+        self.prod = MakerspaceStage(self, 'Prod', env=accounts['Prod'])
+        deploy_stage = pipeline.add_stage(self.prod)
+        deploy_stage.add_post(
+            pipelines.ShellStep(
+                "TestViewerEndpoint",
+                env_from_cfn_outputs={"ENDPOINT_URL": self.prod.hc_viewer_url},
+                commands=["curl -Ssf $ENDPOINT_URL"],
+            )
+        )
+
+        deploy_stage.add_post(
+            pipelines.ShellStep(
+                "TestAPIGatewayEndpoint",
+                env_from_cfn_outputs={"ENDPOINT_URL": self.prod.hc_endpoint},
+                commands=[
+                    "curl --location -X POST $ENDPOINT_URL/visit",
                 ],
             )
         )
@@ -88,7 +106,7 @@ class Pipeline(Stack):
         deploy_stage.add_post(
             pipelines.ShellStep(
                 "TestProdFrontend",
-                env_from_cfn_outputs={"ENDPOINT_URL": deploy.hc_endpoint},
+                env_from_cfn_outputs={"ENDPOINT_URL": self.prod.hc_endpoint},
                 commands=[
                     "curl https://visit.cumaker.space/",
                 ],
