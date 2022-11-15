@@ -116,7 +116,7 @@ class MakerspaceStack(Stack):
         # There is probably a way around this with custom resources, but
         # for now we'll just use unique dns records for beta.
         #
-        # See the Domains class where we note that we could use NS records
+        # See the Domains class where we note that we could use NS records.
         # to share sub-domain space.
         self.dns_records = MakerspaceDnsRecords(
             self.app,
