@@ -3,15 +3,15 @@ from aws_cdk import Environment
 
 accounts = {
     'Dns': {
-        'account': '446249877359',
+        'account': '366442540808',
         'region': 'us-east-1'
     },
     'Prod': {
-        'account': '446249877359',
+        'account': '366442540808',
         'region': 'us-east-1'
     },
     'Beta': {
-        'account': '446249877359',
+        'account': '944207523762',
         'region': 'us-east-1'
     },
     # Brandy Barfield, Capstone Spring 2022
