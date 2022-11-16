@@ -76,7 +76,6 @@ class Pipeline(Stack):
         deploy_stage.add_post(
             pipelines.ShellStep(
                 "TestBetaFrontend",
-                env_from_cfn_outputs={"ENDPOINT_URL": self.beta.hc_endpoint},
                 commands=[
                     "curl https://beta-visit.cumaker.space/",
                 ],
@@ -107,7 +106,6 @@ class Pipeline(Stack):
         deploy_stage.add_post(
             pipelines.ShellStep(
                 "TestProdFrontend",
-                env_from_cfn_outputs={"ENDPOINT_URL": self.prod.hc_endpoint},
                 commands=[
                     "curl https://visit.cumaker.space/",
                 ],
