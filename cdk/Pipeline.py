@@ -18,9 +18,9 @@ class Pipeline(Stack):
             "Synth",
             # use a connection created using the AWS console to authenticate to GitHub.
             input=CodePipelineSource.connection(
-                "ltn7130/unified-makerspace",
+                "clemsonMakerspace/unified-makerspace",
                 "mainline",
-                connection_arn="arn:aws:codestar-connections:us-east-1:446249877359:connection/c5a35733-c701-439d-955e-e1140838d0b7",
+                connection_arn="arn:aws:codestar-connections:us-east-1:944207523762:connection/0d26aa24-5271-44cc-b436-3ddd4e2c9842",
             ),
             commands=[
                 # install dependancies for frontend
