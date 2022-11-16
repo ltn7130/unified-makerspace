@@ -1,15 +1,14 @@
 # This stack is based on the following blog post:
 # https://aws.amazon.com/blogs/developer/cdk-pipelines-continuous-delivery-for-aws-cdk-applications/
-from aws_cdk import (
-    Stack,
-    pipelines as pipelines,
-    Environment,
-)
+from aws_cdk import Environment, Stack
+from aws_cdk import pipelines as pipelines
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep
-from dns import Domains
 from constructs import Construct
-from makerspace import MakerspaceStage
+
 from accounts_config import accounts
+from dns import Domains
+from makerspace import MakerspaceStage
+
 
 class Pipeline(Stack):
     def __init__(self, app: Construct, id: str, *, env: Environment) -> None:
@@ -18,9 +17,11 @@ class Pipeline(Stack):
         deploy_cdk_shell_step = ShellStep(
             "Synth",
             # use a connection created using the AWS console to authenticate to GitHub.
-            input=CodePipelineSource.connection("clemsonMakerspace/unified-makerspace", "mainline",
-                                                connection_arn="arn:aws:codestar-connections:us-east-1:944207523762:connection/0d26aa24-5271-44cc-b436-3ddd4e2c9842"
-                                                ),
+            input=CodePipelineSource.connection(
+                "clemsonMakerspace/unified-makerspace",
+                "mainline",
+                connection_arn="arn:aws:codestar-connections:us-east-1:944207523762:connection/0d26aa24-5271-44cc-b436-3ddd4e2c9842",
+            ),
             commands=[
                 # install dependancies for frontend
                 "cd site/visitor-console",
@@ -52,7 +53,7 @@ class Pipeline(Stack):
         )
 
         # Test beta
-        self.beta = MakerspaceStage(self, 'Beta', env=accounts['Beta'])
+        self.beta = MakerspaceStage(self, "Beta", env=accounts["Beta"])
         deploy_stage = pipeline.add_stage(self.beta)
         deploy_stage.add_post(
             pipelines.ShellStep(
@@ -83,7 +84,7 @@ class Pipeline(Stack):
         )
 
         # test prod
-        self.prod = MakerspaceStage(self, 'Prod', env=accounts['Prod'])
+        self.prod = MakerspaceStage(self, "Prod", env=accounts["Prod"])
         deploy_stage = pipeline.add_stage(self.prod)
         deploy_stage.add_post(
             pipelines.ShellStep(
